@@ -37,6 +37,10 @@ class Plants(Resource):
 
         return make_response(new_plant.to_dict(), 201)
 
+    def delete(self):
+        Plant.query.delete()
+        db.session.commit()
+        return '', 204 
 
 api.add_resource(Plants, '/plants')
 
@@ -47,6 +51,18 @@ class PlantByID(Resource):
         plant = Plant.query.filter_by(id=id).first().to_dict()
         return make_response(jsonify(plant), 200)
 
+    def patch(self, id):
+        plant = Plant.query.get_or_404(id)
+        data = request.get_json()
+        plant.is_in_stock = data.get('is_in_stock', plant.is_in_stock)
+        db.session.commit()
+        return make_response(plant.to_dict(), 200)
+
+    def delete(self, id):
+        plant = Plant.query.get_or_404(id)
+        db.session.delete(plant)
+        db.session.commit()
+        return '', 204 
 
 api.add_resource(PlantByID, '/plants/<int:id>')
 
